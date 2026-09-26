@@ -4,29 +4,48 @@ let mapMain = null;
 let markerGeo = null;
 let selectedLocation = "Arrastra el marcador para definir ubicación";
 
-// Datos iniciales si el usuario no tiene nada guardado
+// Datos por defecto (Concuerdan exactamente con las notificaciones y tu diseño)
 const defaultReports = [
     { id: '#R-4587', cat: 'Basura', date: '25 SEP 2026 - 10:24 AM', status: 'En proceso', loc: 'Quebrada La Esperanza' },
-    { id: '#R-4586', cat: 'Líquidos / químicos', date: '24 SEP 2026 - 4:30 PM', status: 'En proceso', loc: 'Quebrada La Iguaná' },
+    { id: '#R-4586', cat: 'Líquidos / químicos', date: '24 SEP 2026 - 4:30 PM', status: 'En proceso', loc: 'Río Medellín' },
     { id: '#R-4585', cat: 'Escombros', date: '20 SEP 2026 - 11:15 AM', status: 'Resuelto', loc: 'Quebrada La Santa' }
 ];
 
-document.addEventListener("DOMContentLoaded", () => {
-    // Cargar reportes de localStorage
-    if (!localStorage.getItem('nq_reports')) {
+// Función ultra segura para obtener reportes (evita que la app colapse si hay datos corruptos)
+function getSafeReports() {
+    try {
+        let reports = JSON.parse(localStorage.getItem('nq_reports'));
+        // Si no hay reportes o el array está vacío, forzamos los 3 por defecto
+        if (!Array.isArray(reports) || reports.length === 0) {
+            localStorage.setItem('nq_reports', JSON.stringify(defaultReports));
+            return defaultReports;
+        }
+        return reports;
+    } catch (error) {
+        // Si el localStorage se corrompió, lo reseteamos
         localStorage.setItem('nq_reports', JSON.stringify(defaultReports));
+        return defaultReports;
     }
-    
-    // Configurar fecha actual en el input
-    const now = new Date();
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('report-datetime').value = now.toISOString().slice(0,16);
+}
 
-    // Revisar tema oscuro
+document.addEventListener("DOMContentLoaded", () => {
+    // 1. Cargar reportes base si está vacío
+    getSafeReports();
+    
+    // 2. Configurar fecha actual en el input
+    const dtInput = document.getElementById('report-datetime');
+    if(dtInput) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        dtInput.value = now.toISOString().slice(0,16);
+    }
+
+    // 3. Revisar tema oscuro
     if(localStorage.getItem('nq_theme') === 'dark') {
         document.body.classList.add('dark-mode');
     }
 
+    // 4. Iniciar en la pantalla principal
     navigate('home');
 });
 
@@ -34,17 +53,38 @@ document.addEventListener("DOMContentLoaded", () => {
 function navigate(viewId) {
     // Ocultar todas las vistas
     document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+    
     // Mostrar la solicitada
-    document.getElementById(`view-${viewId}`).classList.add('active');
+    const targetView = document.getElementById(`view-${viewId}`);
+    if(targetView) {
+        targetView.classList.add('active');
+    }
     
     // Cerrar menú en móviles si está abierto
     document.body.classList.remove('sidebar-open');
     document.getElementById('main-content').scrollTop = 0;
 
-    // Lógica específica por vista
-    if (viewId === 'geo') initMapGeo();
-    if (viewId === 'map') initMapMain();
-    if (viewId === 'history') renderReports('Todos');
+    // Ocultar sidebar en pantallas públicas (Inicio, Login, Registro)
+    const publicViews = ['home', 'login', 'register'];
+    if (publicViews.includes(viewId)) {
+        document.body.classList.add('no-sidebar');
+    } else {
+        document.body.classList.remove('no-sidebar');
+    }
+
+    // Lógica específica al entrar a ciertas vistas
+    if (viewId === 'geo') {
+        setTimeout(initMapGeo, 200); // Retardo crucial para que Leaflet calcule el tamaño
+    }
+    if (viewId === 'map') {
+        setTimeout(initMapMain, 200);
+    }
+    if (viewId === 'history') {
+        // Forzar visualmente el botón "Todos"
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab').classList.add('active');
+        filterReports('Todos');
+    }
 }
 
 function toggleSidebar() {
@@ -52,14 +92,12 @@ function toggleSidebar() {
 }
 
 function selectCategory(catName) {
-    // Seleccionar radio button por valor
     const radio = document.querySelector(`input[name="cat"][value="${catName}"]`);
     if(radio) radio.checked = true;
     navigate('category');
 }
 
 function logout() {
-    // Simula cerrar sesión
     navigate('home');
 }
 
@@ -71,97 +109,84 @@ function toggleDarkMode() {
 
 // --- LÓGICA DE MAPAS (LEAFLET) ---
 function initMapGeo() {
-    // Esperar a que el div esté visible
-    setTimeout(() => {
-        if (!mapGeo) {
-            // Inicializar mapa centrado en Medellín
-            mapGeo = L.map('map-geo').setView([6.2442, -75.5812], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
-            }).addTo(mapGeo);
+    if (!mapGeo) {
+        mapGeo = L.map('map-geo').setView([6.2442, -75.5812], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapGeo);
 
-            // Marcador arrastrable
-            markerGeo = L.marker([6.2442, -75.5812], { draggable: true }).addTo(mapGeo);
-            
-            // Evento al arrastrar
-            markerGeo.on('dragend', function (e) {
-                const lat = markerGeo.getLatLng().lat.toFixed(4);
-                const lng = markerGeo.getLatLng().lng.toFixed(4);
-                selectedLocation = `Lat: ${lat}, Lng: ${lng} (Quebrada cercana)`;
-                document.getElementById('location-text').innerText = selectedLocation;
-            });
-            
-            // Simular ubicación encontrada
-            document.getElementById('location-text').innerText = "Cra. 12 #45-57, Medellín (Puedes mover el pin)";
-            selectedLocation = "Cra. 12 #45-57, Medellín";
-        } else {
-            mapGeo.invalidateSize(); // Crucial cuando el mapa estaba en display:none
-        }
-    }, 200);
+        markerGeo = L.marker([6.2442, -75.5812], { draggable: true }).addTo(mapGeo);
+        
+        markerGeo.on('dragend', function () {
+            const lat = markerGeo.getLatLng().lat.toFixed(4);
+            const lng = markerGeo.getLatLng().lng.toFixed(4);
+            selectedLocation = `Lat: ${lat}, Lng: ${lng}`;
+            document.getElementById('location-text').innerText = selectedLocation + " (Ubicación ajustada)";
+        });
+        
+        document.getElementById('location-text').innerText = "Cra. 12 #45-57, Medellín (Puedes mover el pin)";
+        selectedLocation = "Cra. 12 #45-57, Medellín";
+    }
+    // ESTO ES LA MAGIA: Obliga al mapa a redibujarse después de quitarle el display:none
+    mapGeo.invalidateSize();
 }
 
 function initMapMain() {
-    setTimeout(() => {
-        if (!mapMain) {
-            mapMain = L.map('map-main').setView([6.2442, -75.5812], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapMain);
-            
-            // Poner algunos pines de ejemplo
-            L.marker([6.24, -75.58]).addTo(mapMain).bindPopup("<b>#R-4587</b><br>Basura");
-            L.marker([6.25, -75.57]).addTo(mapMain).bindPopup("<b>#R-4586</b><br>Líquidos");
-        } else {
-            mapMain.invalidateSize();
-        }
-    }, 200);
+    if (!mapMain) {
+        mapMain = L.map('map-main').setView([6.2442, -75.5812], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapMain);
+        
+        L.marker([6.24, -75.58]).addTo(mapMain).bindPopup("<b>#R-4587</b><br>Basura");
+        L.marker([6.25, -75.57]).addTo(mapMain).bindPopup("<b>#R-4586</b><br>Líquidos / químicos");
+        L.marker([6.23, -75.59]).addTo(mapMain).bindPopup("<b>#R-4585</b><br>Escombros");
+    }
+    mapMain.invalidateSize();
 }
 
 // --- LÓGICA DE REPORTES (GUARDAR Y FILTRAR) ---
 function submitReport() {
-    const desc = document.getElementById('report-desc').value;
-    const cat = document.querySelector('input[name="cat"]:checked')?.value || 'Otro';
-    const dateTime = document.getElementById('report-datetime').value;
-    
-    // Crear ID aleatorio
-    const id = '#R-' + Math.floor(1000 + Math.random() * 9000);
-    
-    // Formatear fecha para guardarla
-    const dateObj = new Date(dateTime);
-    const dateFormatted = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() + ' - ' + dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute:'2-digit' });
+    try {
+        const desc = document.getElementById('report-desc').value;
+        const catRadio = document.querySelector('input[name="cat"]:checked');
+        const cat = catRadio ? catRadio.value : 'Otro';
+        let dateTime = document.getElementById('report-datetime').value;
+        
+        // Si por error borraron la fecha, ponemos la actual
+        if(!dateTime) {
+            const now = new Date();
+            dateTime = now.toISOString().slice(0,16);
+        }
+        
+        const id = '#R-' + Math.floor(1000 + Math.random() * 9000);
+        const dateObj = new Date(dateTime);
+        const dateFormatted = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase() + ' - ' + dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute:'2-digit' });
 
-    const newReport = {
-        id: id,
-        cat: cat,
-        date: dateFormatted,
-        status: 'En proceso',
-        loc: selectedLocation
-    };
+        const newReport = {
+            id: id, cat: cat, date: dateFormatted, status: 'En proceso', loc: selectedLocation
+        };
 
-    // Guardar en localStorage
-    let reports = JSON.parse(localStorage.getItem('nq_reports'));
-    reports.unshift(newReport); // Añadir al principio
-    localStorage.setItem('nq_reports', JSON.stringify(reports));
+        let reports = getSafeReports();
+        reports.unshift(newReport); // Añadir al principio
+        localStorage.setItem('nq_reports', JSON.stringify(reports));
 
-    // Actualizar vista de confirmación
-    document.getElementById('new-report-id').innerText = id;
-    
-    // Limpiar form
-    document.getElementById('report-desc').value = '';
-    
-    navigate('confirmation');
+        document.getElementById('new-report-id').innerText = id;
+        document.getElementById('report-desc').value = ''; // Limpiar campo
+        
+        navigate('confirmation');
+    } catch (e) {
+        console.error("Error al enviar el reporte: ", e);
+        alert("Ocurrió un error guardando el reporte. Inténtalo de nuevo.");
+    }
 }
 
 function filterReports(status, btnElement = null) {
-    // Cambiar clase activa en las pestañas si se hace clic
     if (btnElement) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         btnElement.classList.add('active');
     }
 
-    const reports = JSON.parse(localStorage.getItem('nq_reports')) || [];
+    const reports = getSafeReports();
     const container = document.getElementById('reports-list-container');
     container.innerHTML = '';
 
-    // Filtrar array
     const filtered = status === 'Todos' ? reports : reports.filter(r => r.status === status);
 
     if (filtered.length === 0) {
@@ -169,9 +194,7 @@ function filterReports(status, btnElement = null) {
         return;
     }
 
-    // Renderizar HTML
     filtered.forEach(rep => {
-        // Asignar icono según categoría
         let icon = 'fa-file-alt';
         if(rep.cat.includes('Basura')) icon = 'fa-trash-alt';
         if(rep.cat.includes('Líquido')) icon = 'fa-tint';
