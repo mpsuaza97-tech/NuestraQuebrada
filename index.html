@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuestra Quebrada - Tu reporte protege el agua</title>
-    <!-- Actualizamos a v=5 para refrescar los cambios -->
-    <link rel="stylesheet" href="style.css?v=5">
+    <!-- Actualizamos a v=6 para refrescar los cambios al instante -->
+    <link rel="stylesheet" href="style.css?v=6">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -14,7 +14,6 @@
 
     <aside id="sidebar">
         <div class="sidebar-header">
-            <!-- Salto de línea aplicado aquí para que no se corte -->
             <h2><i class="fas fa-leaf"></i> Nuestra<br>Quebrada</h2>
         </div>
         <nav>
@@ -31,7 +30,6 @@
         <section id="view-home" class="view active">
             <div class="home-container">
                 <i class="fas fa-water logo-icon"></i>
-                <!-- Espacio añadido -->
                 <h1>Nuestra Quebrada</h1>
                 <h2>Tu reporte también protege el agua</h2>
                 <p>Ayúdanos a cuidar nuestras quebradas y afluentes.</p>
@@ -49,7 +47,6 @@
                 <h3>Crear cuenta</h3>
             </header>
             <div class="content-padding center-form">
-                <!-- Espacio añadido -->
                 <h2>Únete a Nuestra Quebrada</h2>
                 <input type="text" class="form-input" placeholder="Nombre completo">
                 <input type="email" class="form-input" placeholder="Correo electrónico">
@@ -76,7 +73,6 @@
         <section id="view-dashboard" class="view">
             <header>
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-                <!-- Espacio añadido -->
                 <h3>Nuestra Quebrada</h3>
                 <div class="header-profile-icon"><i class="fas fa-user-circle"></i></div>
             </header>
@@ -133,7 +129,7 @@
             </div>
         </section>
 
-        <!-- 5. Detalles -->
+        <!-- 5. Detalles (CON PREGUNTA INVOLUCRADOS RESTAURADA) -->
         <section id="view-details" class="view">
             <header>
                 <button class="btn-icon" onclick="navigate('geo')"><i class="fas fa-arrow-left"></i> Volver</button>
@@ -141,6 +137,15 @@
             </header>
             <div class="content-padding">
                 <textarea id="report-desc" rows="5" placeholder="Describe lo que observas..."></textarea>
+                
+                <!-- Opciones de Involucrados restauradas -->
+                <h4 class="mt-4">¿Quién podría estar involucrado?</h4>
+                <div class="list-options mt-2">
+                    <label class="option-item"><input type="radio" name="invol" value="Hogar / comunidad" checked> Hogar / comunidad</label>
+                    <label class="option-item"><input type="radio" name="invol" value="Empresa"> Empresa</label>
+                    <label class="option-item"><input type="radio" name="invol" value="Desconocido"> Desconocido</label>
+                </div>
+
                 <h4 class="mt-4">Fecha y hora</h4>
                 <input type="datetime-local" id="report-datetime" class="form-input">
                 <button class="btn-primary btn-full mt-4" onclick="submitReport()">Enviar Reporte</button>
@@ -207,7 +212,7 @@
             </div>
         </section>
 
-        <!-- 10. Perfil -->
+        <!-- 10. Perfil (CON BOTÓN DE AYUDA RESTAURADO) -->
         <section id="view-profile" class="view">
             <header>
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
@@ -222,14 +227,35 @@
                 <button class="list-btn" onclick="toggleDarkMode()">
                     <div><i class="fas fa-moon"></i> Modo Oscuro / Claro</div> <i class="fas fa-chevron-right"></i>
                 </button>
+                
+                <!-- Botón de Ayuda Restaurado -->
+                <button class="list-btn" onclick="navigate('help')">
+                    <div><i class="fas fa-question-circle"></i> Ayuda</div> <i class="fas fa-chevron-right"></i>
+                </button>
+
                 <button class="list-btn text-danger mt-4" onclick="navigate('home')">
                     <div><i class="fas fa-sign-out-alt"></i> Cerrar sesión</div>
                 </button>
             </div>
         </section>
+
+        <!-- 11. Ayuda e Información (VISTA RESTAURADA) -->
+        <section id="view-help" class="view">
+            <header>
+                <button class="btn-icon" onclick="navigate('profile')"><i class="fas fa-arrow-left"></i></button>
+                <h3>Ayuda e Información</h3>
+            </header>
+            <div class="content-padding">
+                <h2>¿Qué es Nuestra Quebrada?</h2>
+                <p class="mt-2">Nuestra Quebrada es una plataforma ciudadana diseñada para empoderar a la comunidad en la protección de las cuencas hídricas del departamento del Quindío.</p>
+                <p class="mt-2"><strong>¿Por qué reportar?</strong></p>
+                <p>Las quebradas son ecosistemas vitales y muy frágiles. Tus reportes permiten a las autoridades ambientales actuar a tiempo frente a la contaminación, bloqueos de cauces por escombros o vertimientos químicos que ponen en riesgo la salud pública y la flora/fauna de la región.</p>
+            </div>
+        </section>
+
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>
