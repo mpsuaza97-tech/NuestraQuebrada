@@ -148,3 +148,14 @@ button { cursor: pointer; border-radius: 8px; transition: 0.2s; font-size: 1rem;
     .grid-categories { grid-template-columns: repeat(4, 1fr); }
     .home-container .btn-group, .center-form { width: 400px; margin: 0 auto; }
 }
+
+/* Bloqueo total del menú en pantallas públicas (Inicio, Login, Registro) */
+body.no-sidebar #sidebar,
+body.no-sidebar #sidebar-overlay,
+body.no-sidebar .menu-toggle {
+    display: none !important;
+}
+body.no-sidebar #main-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+}
