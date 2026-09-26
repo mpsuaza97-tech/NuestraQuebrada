@@ -3,16 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RíoSeguro - Tu reporte protege el agua</title>
+    <title>NuestraQuebrada - Tu reporte protege el agua</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Iconos FontAwesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- CSS de Leaflet para el Mapa Interactivo -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
 
+    <!-- Fondo oscuro para cerrar el menú en móviles -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
     <!-- Menú Lateral -->
-    <aside id="sidebar" class="hidden">
+    <aside id="sidebar">
         <div class="sidebar-header">
-            <h2><i class="fas fa-water"></i> RíoSeguro</h2>
+            <h2><i class="fas fa-leaf"></i> NuestraQuebrada</h2>
         </div>
         <nav>
             <a href="#" onclick="navigate('dashboard')"><i class="fas fa-home"></i> Inicio</a>
@@ -25,17 +31,47 @@
 
     <!-- Contenedor Principal -->
     <main id="main-content">
-        <!-- 1. Pantalla de Inicio (Splash/Landing) -->
+        
+        <!-- 1. Pantalla de Inicio (Splash) -->
         <section id="view-home" class="view active">
             <div class="home-container">
-                <i class="fas fa-leaf logo-icon"></i>
-                <h1>Nuestra quebrada</h1>
+                <i class="fas fa-water logo-icon"></i>
+                <h1>NuestraQuebrada</h1>
                 <h2>Tu reporte también protege el agua</h2>
-                <p>Ayúdanos a cuidar nuestros ríos, quebradas y afluentes. Reporta vertimientos, basura y situaciones de riesgo ambiental.</p>
+                <p>Ayúdanos a cuidar nuestras quebradas y afluentes. Reporta vertimientos, basura y situaciones de riesgo ambiental.</p>
                 <div class="btn-group">
-                    <button class="btn-primary" onclick="navigate('dashboard')">Comenzar</button>
-                    <button class="btn-secondary" onclick="navigate('dashboard')">Ya tengo una cuenta</button>
+                    <button class="btn-primary" onclick="navigate('register')">Comenzar</button>
+                    <button class="btn-secondary" onclick="navigate('login')">Ya tengo una cuenta</button>
                 </div>
+            </div>
+        </section>
+
+        <!-- Vista: Registro -->
+        <section id="view-register" class="view">
+            <header>
+                <button class="btn-icon" onclick="navigate('home')"><i class="fas fa-arrow-left"></i></button>
+                <h3>Crear cuenta</h3>
+            </header>
+            <div class="content-padding center-form">
+                <h2>Únete a NuestraQuebrada</h2>
+                <input type="text" class="form-input" placeholder="Nombre completo">
+                <input type="email" class="form-input" placeholder="Correo electrónico">
+                <input type="password" class="form-input" placeholder="Contraseña">
+                <button class="btn-primary btn-full mt-4" onclick="navigate('dashboard')">Crear cuenta y entrar</button>
+            </div>
+        </section>
+
+        <!-- Vista: Login -->
+        <section id="view-login" class="view">
+            <header>
+                <button class="btn-icon" onclick="navigate('home')"><i class="fas fa-arrow-left"></i></button>
+                <h3>Iniciar Sesión</h3>
+            </header>
+            <div class="content-padding center-form">
+                <h2>Bienvenido de nuevo</h2>
+                <input type="email" class="form-input" placeholder="Correo electrónico">
+                <input type="password" class="form-input" placeholder="Contraseña">
+                <button class="btn-primary btn-full mt-4" onclick="navigate('dashboard')">Ingresar</button>
             </div>
         </section>
 
@@ -43,63 +79,61 @@
         <section id="view-dashboard" class="view">
             <header>
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-                <h3>RíoSeguro</h3>
+                <h3>NuestraQuebrada</h3>
+                <div class="header-profile-icon"><i class="fas fa-user-circle"></i></div>
             </header>
             <div class="content-padding">
                 <h2>Hola, Paula</h2>
-                <p>Juntos cuidamos nuestros ríos y quebradas</p>
+                <p>Juntos cuidamos nuestras quebradas</p>
                 
                 <button class="btn-primary btn-large" onclick="navigate('category')">
-                    Reportar situación de riesgo <i class="fas fa-arrow-right"></i>
+                    Reportar un vertimiento o situación de riesgo <i class="fas fa-arrow-right"></i>
                 </button>
 
                 <h3 class="section-title">¿Qué tipo de situación quieres reportar?</h3>
                 <div class="grid-categories">
-                    <div class="card-category" onclick="navigate('geo')"><i class="fas fa-trash"></i> Basura</div>
-                    <div class="card-category" onclick="navigate('geo')"><i class="fas fa-flask"></i> Líquidos / Químicos</div>
-                    <div class="card-category" onclick="navigate('geo')"><i class="fas fa-hammer"></i> Escombros</div>
-                    <div class="card-category" onclick="navigate('geo')"><i class="fas fa-water"></i> Taponamientos</div>
+                    <div class="card-category cat-basura" onclick="selectCategory('Basura')"><i class="fas fa-trash-alt"></i> Basura</div>
+                    <div class="card-category cat-liquidos" onclick="selectCategory('Líquidos / químicos')"><i class="fas fa-tint"></i> Líquidos / químicos</div>
+                    <div class="card-category cat-escombros" onclick="selectCategory('Escombros')"><i class="fas fa-hard-hat"></i> Escombros</div>
+                    <div class="card-category cat-taponamientos" onclick="selectCategory('Taponamientos')"><i class="fas fa-water"></i> Taponamientos</div>
                 </div>
-                <a href="#" class="link-text" onclick="navigate('history')">Ver mis reportes</a>
+                <a href="#" class="link-text" onclick="navigate('history')"><i class="fas fa-list"></i> Ver mis reportes</a>
             </div>
         </section>
 
-        <!-- 3. Selección de categoría (Flujo de reporte) -->
+        <!-- 3. Selección de categoría -->
         <section id="view-category" class="view">
             <header>
                 <button class="btn-icon" onclick="navigate('dashboard')"><i class="fas fa-arrow-left"></i> Volver</button>
-                <h3>Tipo de vertimiento</h3>
+                <h3>¿Qué tipo de vertimiento?</h3>
             </header>
             <div class="content-padding">
                 <p class="subtext">Selecciona las opciones en la quebrada</p>
                 <div class="list-options">
-                    <label class="option-item"><input type="radio" name="cat"> <strong>Basura:</strong> Residuos en la orilla o quebrada</label>
-                    <label class="option-item"><input type="radio" name="cat"> <strong>Líquidos / químicos:</strong> Aguas de colores, aceites</label>
-                    <label class="option-item"><input type="radio" name="cat"> <strong>Escombros:</strong> Material de construcción</label>
-                    <label class="option-item"><input type="radio" name="cat"> <strong>Taponamientos:</strong> Obstrucción del cauce</label>
+                    <label class="option-item"><input type="radio" name="cat" value="Basura" id="cat-radio-basura"> <strong>Basura:</strong> Residuos en la orilla o quebrada</label>
+                    <label class="option-item"><input type="radio" name="cat" value="Líquidos / químicos"> <strong>Líquidos / químicos:</strong> Aguas de colores, aceites</label>
+                    <label class="option-item"><input type="radio" name="cat" value="Escombros"> <strong>Escombros:</strong> Material de construcción</label>
+                    <label class="option-item"><input type="radio" name="cat" value="Taponamientos"> <strong>Taponamientos:</strong> Obstrucción del cauce</label>
                 </div>
-                <button class="btn-primary btn-full" onclick="navigate('geo')">Siguiente</button>
+                <button class="btn-primary btn-full mt-4" onclick="navigate('geo')">Siguiente</button>
             </div>
         </section>
 
-        <!-- 4. Geolocalización -->
+        <!-- 4. Geolocalización (Con mapa interactivo) -->
         <section id="view-geo" class="view">
             <header>
                 <button class="btn-icon" onclick="navigate('category')"><i class="fas fa-arrow-left"></i> Volver</button>
                 <h3>Ubicación del reporte</h3>
             </header>
-            <div class="content-padding">
-                <div class="map-placeholder">
-                    <i class="fas fa-map-marked-alt fa-3x"></i>
-                    <p>Mapa Interactivo Aquí</p>
+            <div class="content-padding d-flex-col h-100">
+                <p class="subtext">Mueve el mapa para ajustar la ubicación exacta del incidente.</p>
+                <div id="map-geo" class="map-interactive"></div>
+                
+                <div class="location-info mt-2">
+                    <p><strong>Ubicación seleccionada:</strong> <span id="location-text">Buscando coordenadas...</span></p>
                 </div>
-                <div class="location-info">
-                    <p><strong>Ubicación actual:</strong> Quebrada La Esperanza | Cra. 12 #45-57, Medellín</p>
-                    <a href="#" class="link-text">Editar ubicación</a>
-                </div>
-                <p>¿La ubicación es correcta?</p>
-                <button class="btn-primary btn-full mb-2" onclick="navigate('details')">Sí, es correcta</button>
-                <button class="btn-secondary btn-full">Mover marcador</button>
+                
+                <button class="btn-primary btn-full mt-4" onclick="navigate('details')">Confirmar Ubicación</button>
             </div>
         </section>
 
@@ -111,41 +145,43 @@
             </header>
             <div class="content-padding">
                 <p class="subtext">Describe lo que observas y agrega información adicional.</p>
-                <textarea rows="5" placeholder="Describe lo que observas... (0/500)"></textarea>
+                <textarea id="report-desc" rows="5" placeholder="Describe lo que observas..."></textarea>
                 
                 <h4 class="mt-4">¿Quién podría estar involucrado?</h4>
-                <select class="form-select">
-                    <option>Hogar / comunidad</option>
-                    <option>Empresa</option>
-                    <option>Desconocido</option>
-                </select>
+                <div class="list-options mt-2">
+                    <label class="option-item"><input type="radio" name="invol" value="Hogar / comunidad" checked> Hogar / comunidad</label>
+                    <label class="option-item"><input type="radio" name="invol" value="Empresa"> Empresa</label>
+                    <label class="option-item"><input type="radio" name="invol" value="Desconocido"> Desconocido</label>
+                </div>
 
-                <h4 class="mt-4">Fecha y hora (opcional)</h4>
-                <input type="text" value="Hoy, 10:24 a. m." class="form-input" readonly>
+                <h4 class="mt-4">Fecha y hora</h4>
+                <!-- Input real de fecha y hora -->
+                <input type="datetime-local" id="report-datetime" class="form-input">
                 
-                <button class="btn-primary btn-full mt-4" onclick="navigate('confirmation')">Enviar Reporte</button>
+                <button class="btn-primary btn-full mt-4" onclick="submitReport()">Enviar Reporte</button>
             </div>
         </section>
 
         <!-- 6. Confirmación -->
         <section id="view-confirmation" class="view text-center">
             <div class="content-padding center-content">
-                <i class="fas fa-check-circle success-icon"></i>
+                <div class="icon-circle"><i class="fas fa-check"></i></div>
                 <h2>¡Reporte enviado!</h2>
                 <p>Tu información ya fue enviada a las autoridades competentes. Gracias por cuidar nuestros recursos naturales.</p>
-                <div class="report-id">Número de reporte: <strong>#R-4587</strong></div>
+                <div class="report-id">Número de reporte:<br><strong id="new-report-id">#R-0000</strong></div>
                 <button class="btn-secondary mt-4" onclick="navigate('history')">Ver detalles</button>
                 <button class="btn-primary mt-2" onclick="navigate('dashboard')">Volver al inicio</button>
             </div>
         </section>
 
-        <!-- 7. Mapa de Reportes -->
+        <!-- 7. Mapa Global de Reportes -->
         <section id="view-map" class="view">
             <header>
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <input type="text" placeholder="Buscar en el mapa..." class="search-bar">
             </header>
-            <div class="map-fullscreen-placeholder">
+            <div class="map-fullscreen-wrapper">
+                <div id="map-main" class="map-interactive-full"></div>
                 <div class="map-legend">
                     <div><i class="fas fa-circle color-basura"></i> Basura</div>
                     <div><i class="fas fa-circle color-liquidos"></i> Líquidos</div>
@@ -162,23 +198,12 @@
                 <h3>Mis Reportes</h3>
             </header>
             <div class="tabs">
-                <button class="tab active">Todos</button>
-                <button class="tab">En proceso</button>
-                <button class="tab">Resueltos</button>
+                <button class="tab active" onclick="filterReports('Todos', this)">Todos</button>
+                <button class="tab" onclick="filterReports('En proceso', this)">En proceso</button>
+                <button class="tab" onclick="filterReports('Resuelto', this)">Resueltos</button>
             </div>
-            <div class="list-padding">
-                <div class="report-card">
-                    <h4>#R-4587 | Basura <span class="badge process">En proceso</span></h4>
-                    <p>Quebrada La Esperanza | 25 SEP 2026 - 10:24 AM</p>
-                </div>
-                <div class="report-card">
-                    <h4>#R-4586 | Líquidos / Químicos <span class="badge process">En proceso</span></h4>
-                    <p>Río Medellín | 24 SEP 2026 - 4:30 PM</p>
-                </div>
-                <div class="report-card">
-                    <h4>#R-4585 | Escombros <span class="badge resolved">Resuelto</span></h4>
-                    <p>Quebrada La Santa | 20 SEP 2026 - 11:15 AM</p>
-                </div>
+            <div class="list-padding" id="reports-list-container">
+                <!-- Los reportes se inyectarán aquí con JavaScript -->
             </div>
         </section>
 
@@ -190,17 +215,17 @@
             </header>
             <div class="list-padding">
                 <div class="notification-item unread">
-                    <i class="fas fa-bell"></i>
+                    <div class="notif-icon"><i class="fas fa-check-circle"></i></div>
                     <div>
                         <p>Tu reporte #R-4587 ha sido asignado a la autoridad ambiental</p>
                         <small>Hoy 10:30 a. m.</small>
                     </div>
                 </div>
                 <div class="notification-item">
-                    <i class="fas fa-check"></i>
+                    <div class="notif-icon"><i class="fas fa-info-circle"></i></div>
                     <div>
-                        <p>El reporte #R-4585 fue cerrado y atendido</p>
-                        <small>20 SEP 2026 - 03:45 p. m.</small>
+                        <p>Recuerda: puedes reportar taponamientos por lluvias.</p>
+                        <small>Ayer</small>
                     </div>
                 </div>
             </div>
@@ -214,19 +239,47 @@
             </header>
             <div class="content-padding text-center mt-4">
                 <div class="profile-avatar"><i class="fas fa-user-circle fa-4x"></i></div>
-                <h3>Paula González</h3>
-                <p>paula@gmail.com</p>
+                <h3 class="mt-2">Paula González</h3>
+                <p class="text-muted">paula@gmail.com</p>
             </div>
             <div class="list-padding mt-4">
-                <button class="list-btn" onclick="navigate('history')"><i class="fas fa-list"></i> Mis reportes</button>
-                <button class="list-btn" onclick="navigate('notifications')"><i class="fas fa-bell"></i> Notificaciones</button>
-                <button class="list-btn"><i class="fas fa-cog"></i> Configuración</button>
-                <button class="list-btn"><i class="fas fa-question-circle"></i> Ayuda</button>
-                <button class="list-btn text-danger" onclick="navigate('home')"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+                <button class="list-btn" onclick="navigate('history')">
+                    <div><i class="fas fa-list"></i> Mis reportes</div> <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="list-btn" onclick="navigate('notifications')">
+                    <div><i class="fas fa-bell"></i> Notificaciones</div> <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="list-btn" onclick="toggleDarkMode()">
+                    <div><i class="fas fa-moon"></i> Modo Oscuro / Claro</div> <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="list-btn" onclick="navigate('help')">
+                    <div><i class="fas fa-question-circle"></i> Ayuda</div> <i class="fas fa-chevron-right"></i>
+                </button>
+                <button class="list-btn text-danger mt-4" onclick="logout()">
+                    <div><i class="fas fa-sign-out-alt"></i> Cerrar sesión</div>
+                </button>
             </div>
         </section>
+
+        <!-- 11. Ayuda (Nueva Vista) -->
+        <section id="view-help" class="view">
+            <header>
+                <button class="btn-icon" onclick="navigate('profile')"><i class="fas fa-arrow-left"></i></button>
+                <h3>Ayuda e Información</h3>
+            </header>
+            <div class="content-padding">
+                <h2>¿Qué es NuestraQuebrada?</h2>
+                <p class="mt-2">NuestraQuebrada es una plataforma de ciencia ciudadana diseñada para empoderar a la comunidad en la protección de nuestras cuencas hídricas.</p>
+                <p class="mt-2"><strong>¿Por qué reportar?</strong></p>
+                <p>Las quebradas son ecosistemas frágiles. Tus reportes permiten a las autoridades ambientales actuar a tiempo frente a la contaminación, bloqueos de cauces por escombros o vertimientos químicos que ponen en riesgo la salud pública y la flora/fauna local.</p>
+            </div>
+        </section>
+
     </main>
 
+    <!-- JS de Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Nuestro script -->
     <script src="script.js"></script>
 </body>
 </html>
