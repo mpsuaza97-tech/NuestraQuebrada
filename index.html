@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NuestraQuebrada - Tu reporte protege el agua</title>
-    <!-- EL TRUCO ESTÁ AQUÍ (?v=3) -->
-    <link rel="stylesheet" href="style.css?v=4">
+    <title>Nuestra Quebrada - Tu reporte protege el agua</title>
+    <!-- Actualizamos a v=5 para refrescar los cambios -->
+    <link rel="stylesheet" href="style.css?v=5">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
@@ -14,7 +14,8 @@
 
     <aside id="sidebar">
         <div class="sidebar-header">
-            <h2><i class="fas fa-leaf"></i> NuestraQuebrada</h2>
+            <!-- Salto de línea aplicado aquí para que no se corte -->
+            <h2><i class="fas fa-leaf"></i> Nuestra<br>Quebrada</h2>
         </div>
         <nav>
             <a href="#" onclick="navigate('dashboard')"><i class="fas fa-home"></i> Inicio</a>
@@ -30,7 +31,8 @@
         <section id="view-home" class="view active">
             <div class="home-container">
                 <i class="fas fa-water logo-icon"></i>
-                <h1>NuestraQuebrada</h1>
+                <!-- Espacio añadido -->
+                <h1>Nuestra Quebrada</h1>
                 <h2>Tu reporte también protege el agua</h2>
                 <p>Ayúdanos a cuidar nuestras quebradas y afluentes.</p>
                 <div class="btn-group">
@@ -47,7 +49,8 @@
                 <h3>Crear cuenta</h3>
             </header>
             <div class="content-padding center-form">
-                <h2>Únete a NuestraQuebrada</h2>
+                <!-- Espacio añadido -->
+                <h2>Únete a Nuestra Quebrada</h2>
                 <input type="text" class="form-input" placeholder="Nombre completo">
                 <input type="email" class="form-input" placeholder="Correo electrónico">
                 <input type="password" class="form-input" placeholder="Contraseña">
@@ -73,7 +76,8 @@
         <section id="view-dashboard" class="view">
             <header>
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-                <h3>NuestraQuebrada</h3>
+                <!-- Espacio añadido -->
+                <h3>Nuestra Quebrada</h3>
                 <div class="header-profile-icon"><i class="fas fa-user-circle"></i></div>
             </header>
             <div class="content-padding">
@@ -226,7 +230,6 @@
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- TRUCO DE CACHÉ PARA EL SCRIPT (?v=3) -->
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
