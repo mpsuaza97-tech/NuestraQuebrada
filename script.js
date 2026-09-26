@@ -2,24 +2,26 @@
 let mapGeo = null;
 let mapMain = null;
 let markerGeo = null;
-let selectedLocation = "Cra. 12 #45-57, Medellín";
+let selectedLocation = "Quebrada La Florida, Armenia";
 
+// Reportes por defecto ahora en el Quindío
 const defaultReports = [
-    { id: '#R-4587', cat: 'Basura', date: '25 SEP 2026 - 10:24 AM', status: 'En proceso', loc: 'Quebrada La Esperanza' },
-    { id: '#R-4586', cat: 'Líquidos / químicos', date: '24 SEP 2026 - 4:30 PM', status: 'En proceso', loc: 'Río Medellín' },
-    { id: '#R-4585', cat: 'Escombros', date: '20 SEP 2026 - 11:15 AM', status: 'Resuelto', loc: 'Quebrada La Santa' }
+    { id: '#R-4587', cat: 'Basura', date: '25 SEP 2026 - 10:24 AM', status: 'En proceso', loc: 'Quebrada La Florida, Armenia' },
+    { id: '#R-4586', cat: 'Líquidos / químicos', date: '24 SEP 2026 - 4:30 PM', status: 'En proceso', loc: 'Río Quindío, Salento' },
+    { id: '#R-4585', cat: 'Escombros', date: '20 SEP 2026 - 11:15 AM', status: 'Resuelto', loc: 'Quebrada San José, Circasia' }
 ];
 
 function getSafeReports() {
     try {
-        let reports = JSON.parse(localStorage.getItem('nq_reports'));
+        // Usamos "_v2" para ignorar la caché vieja de Medellín
+        let reports = JSON.parse(localStorage.getItem('nq_reports_v2'));
         if (!Array.isArray(reports) || reports.length === 0) {
-            localStorage.setItem('nq_reports', JSON.stringify(defaultReports));
+            localStorage.setItem('nq_reports_v2', JSON.stringify(defaultReports));
             return defaultReports;
         }
         return reports;
     } catch (e) {
-        localStorage.setItem('nq_reports', JSON.stringify(defaultReports));
+        localStorage.setItem('nq_reports_v2', JSON.stringify(defaultReports));
         return defaultReports;
     }
 }
@@ -37,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     navigate('home');
 });
 
-// Forzamos que las funciones sean globales para que el HTML siempre las encuentre
 window.navigate = function(viewId) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     
@@ -54,7 +55,6 @@ window.navigate = function(viewId) {
         document.body.classList.remove('no-sidebar');
     }
 
-    // Retardos para asegurar que el DOM cargó el flexbox antes de pintar el mapa
     if (viewId === 'geo') setTimeout(initMapGeo, 400);
     if (viewId === 'map') setTimeout(initMapMain, 400);
     if (viewId === 'history') {
@@ -92,7 +92,7 @@ window.submitReport = function() {
         
         let reports = getSafeReports();
         reports.unshift(newRep);
-        localStorage.setItem('nq_reports', JSON.stringify(reports));
+        localStorage.setItem('nq_reports_v2', JSON.stringify(reports));
 
         document.getElementById('new-report-id').innerText = id;
         document.getElementById('report-desc').value = '';
@@ -139,14 +139,16 @@ function initMapGeo() {
     try {
         if (typeof L === 'undefined') return;
         if (!mapGeo) {
-            mapGeo = L.map('map-geo').setView([6.2442, -75.5812], 14);
+            // Coordenadas de Armenia, Quindío
+            mapGeo = L.map('map-geo').setView([4.5339, -75.6811], 14);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapGeo);
-            markerGeo = L.marker([6.2442, -75.5812], { draggable: true }).addTo(mapGeo);
+            
+            markerGeo = L.marker([4.5339, -75.6811], { draggable: true }).addTo(mapGeo);
             markerGeo.on('dragend', function () {
                 selectedLocation = `Lat: ${markerGeo.getLatLng().lat.toFixed(4)}, Lng: ${markerGeo.getLatLng().lng.toFixed(4)}`;
                 document.getElementById('location-text').innerText = selectedLocation + " (Ajustado)";
             });
-            document.getElementById('location-text').innerText = "Cra. 12 #45-57, Medellín (Puedes mover el pin)";
+            document.getElementById('location-text').innerText = "Quebrada La Florida, Armenia (Puedes mover el pin)";
         }
         mapGeo.invalidateSize();
     } catch(e) { console.error(e); }
@@ -156,11 +158,14 @@ function initMapMain() {
     try {
         if (typeof L === 'undefined') return;
         if (!mapMain) {
-            mapMain = L.map('map-main').setView([6.2442, -75.5812], 13);
+            // Coordenadas de Armenia, Quindío para el mapa general
+            mapMain = L.map('map-main').setView([4.5339, -75.6811], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapMain);
-            L.marker([6.24, -75.58]).addTo(mapMain).bindPopup("<b>#R-4587</b><br>Basura");
-            L.marker([6.25, -75.57]).addTo(mapMain).bindPopup("<b>#R-4586</b><br>Líquidos");
-            L.marker([6.23, -75.59]).addTo(mapMain).bindPopup("<b>#R-4585</b><br>Escombros");
+            
+            // Puntos distribuidos por el Quindío (Armenia, Salento, Circasia)
+            L.marker([4.53, -75.68]).addTo(mapMain).bindPopup("<b>#R-4587</b><br>Basura (La Florida)");
+            L.marker([4.63, -75.57]).addTo(mapMain).bindPopup("<b>#R-4586</b><br>Líquidos (Río Quindío)");
+            L.marker([4.61, -75.63]).addTo(mapMain).bindPopup("<b>#R-4585</b><br>Escombros (San José)");
         }
         mapMain.invalidateSize();
     } catch(e) { console.error(e); }
